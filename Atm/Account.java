@@ -4,8 +4,9 @@ public class Account extends Person{
     private String accountId;
     private String password;
     private double balance;
+    private double balanceBTC;
 
-    public Account(String accountId, String name, String password, double balance, String id, String gender ) {
+    public Account(String accountId, String name, String password, double balance, double balanceBTC, String id, String gender ) {
             super(id, name, gender);
             validateAccountId(accountId);
             this.accountId = accountId;
@@ -13,6 +14,7 @@ public class Account extends Person{
             this.password = password;
             validateBalance(balance);
             this.balance = balance;
+            this.balanceBTC = balanceBTC;
     }
 
     public String getAccountId() {
@@ -22,6 +24,15 @@ public class Account extends Person{
 
     public double getBalance() {
         return balance;
+    }
+
+    public double getBalanceBTC(){
+        return balanceBTC;
+    }
+
+    public void setBalanceBTC(double balanceBTC){
+        validateBalance(balanceBTC);
+        this.balanceBTC = balanceBTC;
     }
 
     public void setBalance(double balance){

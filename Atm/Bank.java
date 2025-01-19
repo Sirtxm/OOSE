@@ -6,13 +6,16 @@ import java.util.Scanner;
 public class Bank implements ATMAction {
     private Scanner scanner = new Scanner(System.in);
     private ArrayList<Account> accounts = new ArrayList<>();
+    private double btcRate;
     
+
     public void bankSystem(){
         boolean isAdminLoggedIn = adminLogin();
         if (!isAdminLoggedIn) {
         System.out.println("Access denied. Exiting the system...");
         return; 
     }
+        setBTCRate();
         createAccount();
         loginAccount();
     }
@@ -51,8 +54,9 @@ public class Bank implements ATMAction {
             String gender = scanner.nextLine();
 
             double balance = 0;
+            double balanceBTC = 0;
             while (true) {
-                System.out.print("Enter Initial Balance (0 - 1,000,000): ");
+                System.out.print("Enter THB (0 - 1,000,000): ");
                 try {
                     balance = scanner.nextDouble();
                     scanner.nextLine(); 
@@ -66,14 +70,24 @@ public class Bank implements ATMAction {
                     scanner.nextLine(); 
                 }
             }
+            System.out.print("Enter BTC : ");
+            balanceBTC = scanner.nextDouble();
+            scanner.nextLine(); 
 
-            Account account = new Account(accountId, name, password, balance, id , gender );
+            Account account = new Account(accountId, name, password, balance, balanceBTC, id , gender );
             accounts.add(account);
             System.out.println("Account No. " + (i + 1) + " created successfully!");
         }
     }
 
-    
+    public void setBTCRate(){
+        System.out.print("Please enter BTC rate => ");
+        btcRate = scanner.nextDouble();
+        System.out.println("1 BTC = "+btcRate+" THB");
+        scanner.nextLine();
+    }
+
+
     public void loginAccount() {
         System.out.println("\nATM ComputerThanyaburi Bank");
 
@@ -91,8 +105,6 @@ public class Bank implements ATMAction {
                 return;
             }
         }
-
-        
             System.out.println("\nLogin failed! Incorrect Account ID or Password.");
         }
     }
@@ -151,34 +163,80 @@ public class Bank implements ATMAction {
     
     @Override
     public void checkBalance(Account account) {
-        System.out.println("Your account balance is : " + account.getBalance());
+        System.out.println("THB : " + account.getBalance()+" ("+account.getBalance()/btcRate+" BTC)");
+        System.out.println("BTC : " + account.getBalanceBTC()+" ("+account.getBalanceBTC()*btcRate+" THB)");   
     }
 
     @Override
     public void withdraw(Account account) {
-        System.out.print("Enter withdrawal amount: ");
-        double amount = scanner.nextDouble();
-        if (amount > 0 && amount <= account.getBalance()) {
-            double newBalance = account.getBalance() - amount;
-            account.setBalance(newBalance);
-            System.out.println("Withdrawal successful. Your new balance is: " + newBalance);
-        } else {
-            System.out.println("Invalid amount or insufficient balance.");
+        while (true) {
+            System.out.println("1.THB \n2.BTC \n3.Exit");
+            System.out.print("Choose : ");
+            String choice = scanner.nextLine();
+                switch (choice) {
+                    case "1":
+                        System.out.print("Enter withdrawal amount: ");
+                        double amount = scanner.nextDouble();
+                        if (amount > 0 && amount <= account.getBalance()) {
+                            double newBalance = account.getBalance() - amount;
+                            account.setBalance(newBalance);
+                            System.out.println("Withdrawal successful. Your new balance is: " + newBalance);
+                        } else {
+                            System.out.println("Invalid amount or insufficient balance.");
+                        }
+                            break;
+                    case "2":
+                        System.out.print("Enter withdrawal amount: ");
+                        double amountBTC = scanner.nextDouble();
+                        if (amountBTC > 0 && amountBTC <= account.getBalanceBTC()) {
+                            double newBalanceBTC = account.getBalanceBTC() - amountBTC;
+                            account.setBalanceBTC(newBalanceBTC);
+                            System.out.println("Withdrawal successful. Your new balance is: " + newBalanceBTC);
+                        } else {
+                            System.out.println("Invalid amount or insufficient balance.");
+                        }
+                        break;
+                    case "3":
+                        return;
+                }
+                scanner.nextLine();
         }
     }
 
     @Override
     public void deposit(Account account) {
-        System.out.print("Enter deposit amount: ");
-        double amount = scanner.nextDouble();
-
-    if (amount > 0) {
-        double newBalance = account.getBalance() + amount;
-        System.out.println("Deposit successful. Your new balance is: " + newBalance);
-        account.setBalance(newBalance);
-    } else {
-        System.out.println("Invalid deposit amount. Please enter a positive number.");
-    }
+        System.out.println("1.THB \n2.BTC \n3.Exit");
+        System.out.print("Choose : ");
+        String choice = scanner.nextLine();
+                switch (choice) {
+                    case "1":
+                        System.out.print("Enter deposit amount: ");
+                        double amount = scanner.nextDouble();
+                
+                        if (amount > 0) {
+                            double newBalance = account.getBalance() + amount;
+                            System.out.println("Deposit successful. Your new balance is: " + newBalance);
+                            account.setBalance(newBalance);
+                        } else {
+                            System.out.println("Invalid deposit amount. Please enter a positive number.");
+                        }
+                        break;
+                    case "2":
+                        System.out.print("Enter deposit amount: ");
+                        double amountBTC = scanner.nextDouble();
+                
+                        if (amountBTC > 0) {
+                            double newBalanceBTC = account.getBalanceBTC() + amountBTC;
+                            System.out.println("Deposit successful. Your new balance is: " + newBalanceBTC);
+                            account.setBalance(newBalanceBTC);
+                        } else {
+                            System.out.println("Invalid deposit amount. Please enter a positive number.");
+                        }
+                        break;
+                    case "3":
+                        return;
+                }
+                scanner.nextLine();
     }
 
     @Override
@@ -220,7 +278,6 @@ public class Bank implements ATMAction {
                 return account;
             }
         }
-        
         return null;
     }
 }
